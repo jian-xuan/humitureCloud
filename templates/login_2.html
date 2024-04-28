@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Demo Page</title>
+
+    <link rel="stylesheet" href="../static/bootstrap/css/bootstrap.css">
+    <script src="../static/jquery-3.3.1.js"></script>
+    <script src="../static/bootstrap/js/bootstrap.js"></script>
+
+  <style>
+  /* 自定义样式 */
+  #mainNavbar {
+    background: linear-gradient(to right, #02AAB0, #00CDAC);
+  }
+  .navbar-brand {
+    font-weight: bold;
+  }
+  #realtime {
+    background: #f2f2f2;
+    padding: 20px;
+    border-radius: 10px;
+  }
+  #tempChart {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  #switchBtn {
+    background: #00CDAC;
+    color: #fff;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 4px;
+  }
+  /* 动画效果 */
+  #history {
+    animation: fadeIn 0.5s ease-out;
+  }
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  </style>
+
+</head>
+
+<body>
+
+<!-- 导航栏 -->
+<nav id="mainNavbar" class="navbar navbar-expand-md navbar-dark fixed-top">
+  <a class="navbar-brand" href="#">Smart Home</a>
+
+  <button class="navbar-toggler" type="button">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="mainNavbar">
+
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+        <a class="nav-link" href="#">实时数据</a>
+      </li>
+    </ul>
+
+    <ul class="navbar-nav ml-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="#">历史数据</a>
+      </li>
+    </ul>
+
+  </div>
+
+</nav>
+
+<!-- 主体内容 -->
+<main class="container mt-5 pt-5">
+
+  <!-- 实时数据 -->
+  <section id="realtime">
+    <h2 class="text-center mb-4">实时数据</h2>
+
+    <div class="card">
+      <canvas id="tempChart"></canvas>
+    </div>
+
+    <button id="switchBtn" class="btn btn-primary btn-block mt-3">
+      开/关
+    </button>
+  </section>
+
+  <!-- 历史数据 -->
+  <section id="history">
+    <h2 class="text-center mb-4">历史数据</h2>
+
+    <div class="input-group mb-3">
+      <input type="date" class="form-control">
+      <span class="input-group-text">-</span>
+      <input type="date" class="form-control">
+
+      <button class="btn btn-primary">查询</button>
+    </div>
+
+    <table class="table table-hover">
+      <!-- 数据列表 -->
+    </table>
+
+  </section>
+
+</main>
+
+
+</body>
+</html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>温湿度监测</title>
+    <!-- jQuery CDN -->
+
+    <script src="../static/jquery-3.3.1.js"></script>
+    <link rel="stylesheet" href="../static/bootstrap/css/bootstrap.css">
+    <script src="../static/bootstrap/js/bootstrap.js"></script>
+    <!-- 引入 Chart.js 库 -->
+    <script src="../static/chart.js"></script>
+</head>
+<body>
+<!--    <nav class="navbar navbar-expand-lg navbar-light bg-light">-->
+<!--        <div class="container">-->
+<!--            <a class="navbar-brand" href="#">温湿度监测</a>-->
+<!--            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">-->
+<!--                <span class="navbar-toggler-icon"></span>-->
+<!--            </button>-->
+<!--            <div class="collapse navbar-collapse" id="navbarNav">-->
+<!--                <ul class="navbar-nav">-->
+<!--                    <li class="nav-item">-->
+<!--                        <a class="nav-link" href="#" id="realtime-link">实时数据</a>-->
+<!--                    </li>-->
+<!--                    <li class="nav-item">-->
+<!--                        <a class="nav-link" href="#" id="history-link">历史数据</a>-->
+<!--                    </li>-->
+<!--                </ul>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </nav>-->
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+
+      <a class="navbar-brand" href="#">温湿度监测</a>
+    </div>
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li class="active"><a href="#" id="realtime-link">实时数据 <span class="sr-only">(current)</span></a></li>
+        <li><a href="#" id="history-link">历史数据</a></li>
+
+      </ul>
+
+
+    </div><!-- /.navbar-collapse -->
+
+  </div><!-- /.container-fluid -->
+
+</nav>
+<div class="text-center">
+  <button type="button" class="btn btn-info" id="tOpen">关闭调温</button>
+</div>
+    <div class="container" id="content">
+        <div class="row" id="realtime">
+            <div class="col-md-8">
+                <canvas id="chart" width="1200" height="800"></canvas>
+            </div>
+<!--            <div class="col-md-4">-->
+<!--                <h3>温湿度开关</h3>-->
+<!--                <button type="button" class="btn btn-primary">开</button>-->
+<!--                <button type="button" class="btn btn-danger">关</button>-->
+<!--            </div>-->
+        </div>
+        <div class="row" id="history" style="display: none;">
+            <div class="col-md-12">
+                <h3>历史数据</h3>
+                <form id="history-form">
+                    <div class="form-group row">
+                        <label for="start-date" class="col-sm-2 col-form-label">开始日期</label>
+                        <div class="col-sm-4">
+                            <input type="date" class="form-control" id="start-date" name="start_date">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="end-date" class="col-sm-2 col-form-label">结束日期</label>
+                        <div class="col-sm-4">
+                            <input type="date" class="form-control" id="end-date" name="end_date">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-10">
+                            <button type="submit" class="btn btn-primary">查询</button>
+                        </div>
+                    </div>
+                </form>
+                <table class="table table-bordered" id="history-table">
+                    <thead>
+                        <tr>
+                            <th>时间</th>
+                            <th>温度</th>
+                            <th>湿度</th>
+                            <th>温度开关</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 表格数据将通过 Ajax 请求动态填充 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(function () {
+            // 实时数据链接点击事件
+            $('#realtime-link').click(function () {
+                $('#realtime').show();
+                $('#history').hide();
+     // 移除历史数据的活动状态
+  document.getElementById("history-link").parentElement.classList.remove("active");
+  // 添加实时数据的活动状态
+  document.getElementById("realtime-link").parentElement.classList.add("active");
+            });
+
+            // 历史数据链接点击事件
+            $('#history-link').click(function () {
+                $('#realtime').hide();
+                $('#history').show();
+                  // 移除实时数据的活动状态
+  document.getElementById("realtime-link").parentElement.classList.remove("active");
+  // 添加历史数据的活动状态
+  document.getElementById("history-link").parentElement.classList.add("active");
+            });
+
+        // 温湿度开关按钮点击事件
+            $('.btn').click(function () {
+                // TODO: 发送 Ajax 请求，控制温湿度开关
+            });
+
+            // 初始化温湿度曲线图
+            var ctx = $('#chart')[0].getContext('2d');
+            var chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],  // X 轴标签将通过 Ajax 请求动态填充
+                    datasets: [{
+                        label: '温度',
+                        data: [],  // Y 轴数据将通过 Ajax 请求动态填充
+                        borderColor: 'red',
+                        backgroundColor: 'rgba(255, 0, 0, 0.1)'
+                    }, {
+                        label: '湿度',
+                        data: [],  // Y 轴数据将通过 Ajax 请求动态填充
+                        borderColor: 'blue',
+                        backgroundColor: 'rgba(0, 0, 255, 0.1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        xAxes: [{
+                            type: 'time',
+                            time: {
+                                unit: 'minute'
+                            }
+                        }]
+                    }
+                }
+            });
+    // 初始开关状态
+    var tOpen = 1;
+            // 获取按钮元素
+var btn = document.getElementById('tOpen');
+
+            // 定时请求实时数据
+            setInterval(function () {
+                $.ajax({
+                    url: '/getDevData',
+                    dataType: 'json',
+                    success: function (data) {
+                        // 更新温湿度曲线图数据
+                        chart.data.labels.push(data.timestamp);
+                        chart.data.datasets[0].data.push({ x: data.timestamp, y: data.temperature });
+                        chart.data.datasets[1].data.push({ x: data.timestamp, y: data.humidity });
+                        chart.update();
+                        tOpen = data.tOpen ;
+                         // 设置按钮初始文字
+    if(tOpen == 0){
+      btn.innerText = '关闭调温';
+    } else {
+      btn.innerText = '开启调温';
+    }
+
+                    }
+                });
+            }, 5000);
+
+            // 历史数据查询表单提交事件
+            $('#history-form').submit(function (event) {
+                event.preventDefault();
+                var startDate = $('#start-date').val();
+                var endDate = $('#end-date').val();
+                $.ajax({
+                    url: '/getHistory',
+                    data: { start_date: startDate, end_date: endDate },
+                    dataType: 'json',
+                    success: function (data) {
+                        // 渲染历史数据表格
+                        var tbody = $('#history-table tbody');
+                        tbody.empty();
+                        for (var i = 0; i < data.length; i++) {
+                            var row = $('<tr>');
+                            row.append($('<td>').text(data[i].receive_time));
+                            row.append($('<td>').text(data[i].tem));
+                            row.append($('<td>').text(data[i].hum));
+                            row.append($('<td>').text(data[i].tOpen));
+                            row.append($('</tr>'));
+                            tbody.append(row);
+                        }
+                    }
+                });
+            });
+        });
+
+
+
+var btn = document.getElementById('tOpen');
+
+    // 点击事件处理
+    btn.addEventListener('click', function(){
+        var ch = "u" ;
+        if(tOpen==1) {
+            ch = "z"
+        }
+         $.ajax({
+                    url: '/tOpen',
+                    data: {tg:ch},
+                    dataType: 'json',
+                    success: function (data) {
+                    if(tOpen == 0){
+                        tOpen = 1;
+                        btn.innerText = '开启调温';
+                      } else {
+                        tOpen = 0;
+                        btn.innerText = '关闭调温';
+                      }
+                        }
+                });
+
+
+      // TODO: 将状态发送到后端
+
+    });
+
+    </script>
+</body>
+</html>
